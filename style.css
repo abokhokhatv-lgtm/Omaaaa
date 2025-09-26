@@ -471,3 +471,80 @@ textarea {
   text-align: center;
   padding: 1rem 0;
 }
+
+/* إدارة الدروس في صفحة الدورة */
+.lessons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  margin-top: 2rem;
+}
+
+.lessons-sidebar {
+  flex: 1 1 220px;
+  max-width: 280px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  overflow-y: auto;
+  max-height: 500px;
+}
+
+.lessons-player {
+  flex: 3 1 600px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  min-height: 300px;
+}
+
+.lesson-item {
+  display: block;
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.5rem;
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  text-align: right;
+  transition: background-color 0.2s ease;
+}
+
+.lesson-item:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.lesson-item.active {
+  background: rgba(255, 255, 255, 0.8);
+  font-weight: bold;
+}
+
+.lesson-item.locked {
+  background: rgba(0, 0, 0, 0.1);
+  color: #555;
+  cursor: not-allowed;
+}
+
+.lessons-player .ratio {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%;
+  margin-top: 1rem;
+}
+
+.lessons-player .ratio iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}

@@ -28,15 +28,12 @@
         يمكنك مشاهدة الفيديوهات التالية الخاصة بالدورة. يرجى الالتزام بعدم
         مشاركة هذه الروابط مع الآخرين.
       </p>
-      <!-- تضمين قائمة فيديوهات القناة داخل الدورة -->
-      <div class="video-wrapper">
-        <iframe
-          src="https://www.youtube.com/embed/?listType=user_uploads&list=omarali3637"
-          title="دروس الدورة"
-          frameborder="0"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowfullscreen
-        ></iframe>
+      <!-- حاوية الدروس: قائمة الدروس ومشغل الفيديو -->
+      <div class="lessons-container">
+        <aside id="lessons-list" class="lessons-sidebar"></aside>
+        <div id="lesson-player" class="lessons-player">
+          <p>اختر درسًا من القائمة لبدء المشاهدة.</p>
+        </div>
       </div>
     </main>
 

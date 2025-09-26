@@ -127,6 +127,63 @@
           <tbody></tbody>
         </table>
       </div>
+
+      <!-- قسم إضافة مخطوطة جديدة -->
+      <div class="admin-section">
+        <h3>إضافة مخطوطة جديدة</h3>
+        <form id="add-manuscript-form">
+          <label for="manuscript-title">عنوان المخطوطة</label>
+          <input type="text" id="manuscript-title" required />
+          <label for="manuscript-description">وصف المخطوطة</label>
+          <textarea id="manuscript-description" rows="3"></textarea>
+          <label for="manuscript-link">رابط المخطوطة (Google Drive)</label>
+          <input type="url" id="manuscript-link" required />
+          <button type="submit" class="btn-primary">إضافة المخطوطة</button>
+        </form>
+        <p id="add-manuscript-msg" class="success-message"></p>
+      </div>
+      <div class="admin-section">
+        <h3>المخطوطات الحالية</h3>
+        <table id="manuscripts-table">
+          <thead>
+            <tr>
+              <th>العنوان</th>
+              <th>الوصف</th>
+              <th>الرابط</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+
+      <!-- قسم إدارة الدروس -->
+      <div class="admin-section">
+        <h3>إضافة درس جديد</h3>
+        <form id="add-lesson-form">
+          <label for="lesson-title">عنوان الدرس</label>
+          <input type="text" id="lesson-title" required />
+          <label for="lesson-url">رابط الفيديو (YouTube أو Vimeo)</label>
+          <input type="url" id="lesson-url" required />
+          <label><input type="checkbox" id="lesson-free" /> مجاني (عرض تجريبي)</label>
+          <button type="submit" class="btn-primary">إضافة الدرس</button>
+        </form>
+        <p id="add-lesson-msg" class="success-message"></p>
+      </div>
+      <div class="admin-section">
+        <h3>الدروس الحالية</h3>
+        <table id="lessons-table">
+          <thead>
+            <tr>
+              <th>العنوان</th>
+              <th>مجاني؟</th>
+              <th>الرابط</th>
+              <th>إجراءات</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </main>
 
     <script src="admin.js"></script>

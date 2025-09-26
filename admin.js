@@ -17,6 +17,12 @@ document.addEventListener('DOMContentLoaded', () => {
   renderPostsTable();
   renderBooksTable();
 
+  // رسم جدول الدروس الحالية
+  renderLessonsTable();
+
+  // رسم جدول المخطوطات الحالية
+  renderManuscriptsTable();
+
   const addPostForm = document.getElementById('add-post-form');
   if (addPostForm) {
     addPostForm.addEventListener('submit', (e) => {
@@ -69,6 +75,70 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('add-book-msg').textContent = 'تم إضافة الكتاب بنجاح.';
       addBookForm.reset();
       renderBooksTable();
+    });
+  }
+
+  // ربط نموذج إضافة درس جديد
+  const addLessonForm = document.getElementById('add-lesson-form');
+  if (addLessonForm) {
+    addLessonForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('lesson-title').value.trim();
+      const rawUrl = document.getElementById('lesson-url').value.trim();
+      const free = document.getElementById('lesson-free').checked;
+      if (!title || !rawUrl) return;
+      // قراءة الدروس الحالية
+      let lessons = [];
+      try {
+        lessons = JSON.parse(localStorage.getItem('lessons') || '[]');
+      } catch (e) {
+        lessons = [];
+      }
+      // إنشاء درس جديد
+      const newLesson = {
+        id: Date.now(),
+        title,
+        url: parseEmbedURL(rawUrl),
+        rawUrl,
+        free
+      };
+      lessons.push(newLesson);
+      localStorage.setItem('lessons', JSON.stringify(lessons));
+      document.getElementById('add-lesson-msg').textContent = 'تم إضافة الدرس بنجاح.';
+      addLessonForm.reset();
+      renderLessonsTable();
+    });
+  }
+
+  // ربط نموذج إضافة مخطوطة جديدة
+  const addManuscriptForm = document.getElementById('add-manuscript-form');
+  if (addManuscriptForm) {
+    addManuscriptForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = document.getElementById('manuscript-title').value.trim();
+      const description = document
+        .getElementById('manuscript-description')
+        .value.trim();
+      const link = document.getElementById('manuscript-link').value.trim();
+      if (!title || !link) return;
+      let manuscripts = [];
+      try {
+        manuscripts = JSON.parse(localStorage.getItem('manuscripts') || '[]');
+      } catch (e) {
+        manuscripts = [];
+      }
+      const newManuscript = {
+        id: Date.now(),
+        title,
+        description,
+        link,
+      };
+      manuscripts.push(newManuscript);
+      localStorage.setItem('manuscripts', JSON.stringify(manuscripts));
+      document.getElementById('add-manuscript-msg').textContent =
+        'تم إضافة المخطوطة بنجاح.';
+      addManuscriptForm.reset();
+      renderManuscriptsTable();
     });
   }
 
@@ -130,6 +200,220 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'login.html';
   });
 });
+
+// تحويل رابط الفيديو إلى رابط مضمّن يمكن عرضه في iframe
+function parseEmbedURL(input) {
+  try {
+    const urlStr = input.trim();
+    const url = new URL(urlStr);
+    const host = url.hostname.replace('www.', '');
+    // YouTube الحالات
+    if (host.includes('youtube.com')) {
+      // قائمة تشغيل
+      if (url.searchParams.get('list')) {
+        const listId = url.searchParams.get('list');
+        return `https://www.youtube.com/embed/videoseries?list=${listId}`;
+      }
+      // watch?v=
+      const v = url.searchParams.get('v');
+      if (v) {
+        return `https://www.youtube.com/embed/${v}`;
+      }
+      // /embed/VIDEO
+      const parts = url.pathname.split('/').filter(Boolean);
+      const idx = parts.indexOf('embed');
+      if (idx >= 0 && parts[idx + 1]) {
+        return `https://www.youtube.com/embed/${parts[idx + 1]}`;
+      }
+    }
+    // youtu.be
+    if (host === 'youtu.be') {
+      const id = url.pathname.substring(1);
+      if (id) {
+        return `https://www.youtube.com/embed/${id}`;
+      }
+    }
+    // Vimeo
+    if (host.includes('vimeo.com')) {
+      const segments = url.pathname.split('/').filter(Boolean);
+      const id = segments.pop();
+      if (id) {
+        return `https://player.vimeo.com/video/${id}`;
+      }
+    }
+    // غير ذلك، أعد الرابط كما هو
+    return urlStr;
+  } catch (err) {
+    return input;
+  }
+}
+
+// تحميل الدروس من localStorage
+function loadLessons() {
+  try {
+    return JSON.parse(localStorage.getItem('lessons') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+// حفظ الدروس إلى localStorage
+function saveLessons(list) {
+  localStorage.setItem('lessons', JSON.stringify(list));
+}
+
+// رسم جدول الدروس الحالية في لوحة التحكم
+function renderLessonsTable() {
+  const table = document.getElementById('lessons-table');
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  let lessons = loadLessons();
+  lessons.forEach((lesson) => {
+    const tr = document.createElement('tr');
+    // العنوان
+    const titleTd = document.createElement('td');
+    titleTd.textContent = lesson.title;
+    tr.appendChild(titleTd);
+    // مجاني
+    const freeTd = document.createElement('td');
+    freeTd.textContent = lesson.free ? 'نعم' : 'لا';
+    tr.appendChild(freeTd);
+    // الرابط
+    const linkTd = document.createElement('td');
+    const linkAnchor = document.createElement('a');
+    linkAnchor.href = lesson.rawUrl || lesson.url;
+    linkAnchor.target = '_blank';
+    linkAnchor.textContent = 'عرض';
+    linkTd.appendChild(linkAnchor);
+    tr.appendChild(linkTd);
+    // الإجراءات
+    const actionsTd = document.createElement('td');
+    // تعديل
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'تعديل';
+    editBtn.className = 'btn-secondary';
+    editBtn.addEventListener('click', () => {
+      const newTitle = prompt('العنوان الجديد:', lesson.title);
+      if (newTitle === null) return;
+      const newUrl = prompt('رابط الفيديو الجديد:', lesson.rawUrl || lesson.url);
+      if (newUrl === null) return;
+      const newFree = confirm('هل تريد جعل الدرس مجاني؟ اضغط "موافق" للموافقة، "إلغاء" لرفض');
+      let list = loadLessons();
+      const idx = list.findIndex((l) => l.id === lesson.id);
+      if (idx !== -1) {
+        list[idx].title = newTitle.trim();
+        list[idx].rawUrl = newUrl.trim();
+        list[idx].url = parseEmbedURL(newUrl.trim());
+        list[idx].free = newFree;
+        saveLessons(list);
+        renderLessonsTable();
+      }
+    });
+    // حذف
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'حذف';
+    deleteBtn.className = 'btn-secondary';
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('هل أنت متأكد من حذف الدرس؟')) {
+        let list = loadLessons();
+        list = list.filter((l) => l.id !== lesson.id);
+        saveLessons(list);
+        renderLessonsTable();
+      }
+    });
+    actionsTd.appendChild(editBtn);
+    actionsTd.appendChild(deleteBtn);
+    tr.appendChild(actionsTd);
+    tbody.appendChild(tr);
+  });
+}
+
+// تحميل المخطوطات من localStorage
+function loadManuscripts() {
+  try {
+    return JSON.parse(localStorage.getItem('manuscripts') || '[]');
+  } catch (e) {
+    return [];
+  }
+}
+
+// حفظ المخطوطات في localStorage
+function saveManuscripts(list) {
+  localStorage.setItem('manuscripts', JSON.stringify(list));
+}
+
+// رسم جدول المخطوطات في لوحة التحكم
+function renderManuscriptsTable() {
+  const table = document.getElementById('manuscripts-table');
+  if (!table) return;
+  const tbody = table.querySelector('tbody');
+  tbody.innerHTML = '';
+  let manuscripts = [];
+  try {
+    manuscripts = JSON.parse(localStorage.getItem('manuscripts') || '[]');
+  } catch (e) {
+    manuscripts = [];
+  }
+  manuscripts.forEach((manuscript) => {
+    const tr = document.createElement('tr');
+    // عنوان
+    const titleTd = document.createElement('td');
+    titleTd.textContent = manuscript.title;
+    tr.appendChild(titleTd);
+    // الوصف
+    const descTd = document.createElement('td');
+    descTd.textContent = manuscript.description || '';
+    tr.appendChild(descTd);
+    // الرابط
+    const linkTd = document.createElement('td');
+    const linkAnchor = document.createElement('a');
+    linkAnchor.href = manuscript.link;
+    linkAnchor.target = '_blank';
+    linkAnchor.textContent = 'عرض';
+    linkTd.appendChild(linkAnchor);
+    tr.appendChild(linkTd);
+    // الإجراءات
+    const actionsTd = document.createElement('td');
+    // تعديل
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'تعديل';
+    editBtn.className = 'btn-secondary';
+    editBtn.addEventListener('click', () => {
+      const newTitle = prompt('العنوان الجديد:', manuscript.title);
+      if (newTitle === null) return;
+      const newDesc = prompt('الوصف الجديد:', manuscript.description || '');
+      if (newDesc === null) return;
+      const newLink = prompt('الرابط الجديد:', manuscript.link);
+      if (newLink === null) return;
+      let list = loadManuscripts();
+      const idx = list.findIndex((m) => m.id === manuscript.id);
+      if (idx !== -1) {
+        list[idx].title = newTitle.trim();
+        list[idx].description = newDesc.trim();
+        list[idx].link = newLink.trim();
+        saveManuscripts(list);
+        renderManuscriptsTable();
+      }
+    });
+    // حذف
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'حذف';
+    deleteBtn.className = 'btn-secondary';
+    deleteBtn.addEventListener('click', () => {
+      if (confirm('هل أنت متأكد من حذف المخطوطة؟')) {
+        let list = loadManuscripts();
+        list = list.filter((m) => m.id !== manuscript.id);
+        saveManuscripts(list);
+        renderManuscriptsTable();
+      }
+    });
+    actionsTd.appendChild(editBtn);
+    actionsTd.appendChild(deleteBtn);
+    tr.appendChild(actionsTd);
+    tbody.appendChild(tr);
+  });
+}
 
 // رسم جدول المقالات
 function renderPostsTable() {
